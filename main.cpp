@@ -11,5 +11,6 @@ int main(int argc, char *argv[])
     QLabel *label = new QLabel("Hello");
     MainWindow w;
     w.show();
+    delete label;
     return a.exec();
 }

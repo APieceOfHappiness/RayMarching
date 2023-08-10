@@ -6,6 +6,10 @@ namespace RayMarching {
         return this->type;
     }
 
+    const QVector3D& Object::get_position() const {
+        return this->position;
+    }
+
     StaticObject::StaticObject() {
         this->type = 0;
     }
@@ -13,5 +17,6 @@ namespace RayMarching {
     LightObject::LightObject() {
         this->type = 1;
     }
+
 }
 

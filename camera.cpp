@@ -57,6 +57,9 @@ namespace RayMarching {
 
     Camera::IntersectionInfo Camera::ray(const QVector2D &pixel) {
         IntersectionInfo intersection_info{};
+        if (!this->static_objects.size()) {
+            return intersection_info;
+        }
 
         double whole_dist = 0;
         double weight = this->get_inner_scene().width();
@@ -109,14 +112,21 @@ namespace RayMarching {
     }
 
     double Camera::get_light(const QVector3D& point, const StaticObject& object) const {
-        QVector3D light_pos(2, 2, 0); // TODO: new objects: lights
 
         object.dist(point);
         QVector3D object_normal = object.normal(point);
-        QVector3D light_normal = (point - light_pos).normalized();
+        double total_density = 0;
+        for (auto light_object : this->light_objects) {
+            QVector3D light_normal = (point - light_object->get_position()).normalized();
+            total_density += (1 - QVector3D::dotProduct(object_normal, light_normal)) / 2;
+            // (->, <-) = -1; (->, ->) = 1; I want it to be (->, <-) = 1; (->, ->) = 0;
+        }
 
-        // (->, <-) = -1; (->, ->) = 1; I want it to be (->, <-) = 1; (->, ->) = 0;
-        return (1 - QVector3D::dotProduct(object_normal, light_normal)) / 2;
+        if (total_density > 1) {
+            total_density = 1;
+        }
+
+        return total_density;
     }
 }
 

@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <camera.h>
+#include <pointlight.h>.h>
 #include <circle.h>
 
 const size_t image_weight = 1000;
@@ -20,14 +21,18 @@ MainWindow::MainWindow(QWidget *parent)
 
     QImage image = QImage(image_weight, image_height, QImage::Format_RGB32);
     size_t x, y;
-    QVector3D circle_center(0, 0, 5);
 
-    RayMarching::Circle circle2(QVector3D(1, 0.5, 3), 0.7);
+    QVector3D circle_center(0, 0, 5);
+    RayMarching::Circle circle(QVector3D(1, 0.5, 3), 0.7);
+
+    RayMarching::PointLight light(QVector3D(1.2, 1.2, 1.2), 3);
 
     RayMarching::Camera camera;
     camera.set_inner_scene(image);
     camera.set_position(QVector3D(0, 0, 0));
-    camera.add_object(circle2);
+
+    camera.add_object(circle);
+    camera.add_object(light);
 
     camera.render_the_scene();
 

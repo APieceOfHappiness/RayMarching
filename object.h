@@ -13,6 +13,7 @@ namespace RayMarching {
     public:
         virtual double dist(const QVector3D& point) const = 0;
 
+        const QVector3D& get_position() const;
         int get_type() const;
         Object() = default;
     };
@@ -24,9 +25,8 @@ namespace RayMarching {
     };
 
     class LightObject : public Object {
-    protected:
+    public:
         LightObject();
-        int type = 1;
     };
 }
 

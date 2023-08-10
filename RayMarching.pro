@@ -13,13 +13,15 @@ SOURCES += \
     circle.cpp \
     main.cpp \
     mainwindow.cpp \
-    object.cpp
+    object.cpp \
+    pointlight.cpp
 
 HEADERS += \
     camera.h \
     circle.h \
     mainwindow.h \
-    object.h
+    object.h \
+    pointlight.h
 
 FORMS += \
     mainwindow.ui

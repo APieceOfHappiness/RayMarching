@@ -1,0 +1,4 @@
+light
+moving
+choose objects by clicks
+

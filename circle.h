@@ -12,9 +12,9 @@ namespace RayMarching {
         double dist(const QVector3D& point) const override;
         QVector3D normal(const QVector3D& point) const override;
         void info() const;
-        Circle(const QVector3D& center, double radius);
 
-        Circle() = delete;
+        Circle(const QVector3D& center, double radius);
+        Circle();
     };
 }
 

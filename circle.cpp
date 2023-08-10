@@ -11,6 +11,11 @@ namespace RayMarching {
         this->radius = radius;
     }
 
+    Circle::Circle() {
+        this->position = QVector3D(0, 0, 00);
+        this->radius = 1;
+    }
+
     void Circle::info() const {
         qDebug() << "( x =" << this->position.x() << "y =" << this->position.y() << "z =" << this->position.z() << "r =" << this->radius << ")";
     }
