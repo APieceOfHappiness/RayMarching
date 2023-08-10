@@ -48,7 +48,7 @@ namespace RayMarching {
                     if (intersection.there_is_an_intersection) {
                         // TODO: smth
                     }
-                    double density = pow(intersection.light, this->light_strength) * 255;
+                    double density = intersection.light * 255;
                     this->inner_scene->setPixel(i, j, qRgb(density, density, density));
                 }
             }
@@ -117,9 +117,7 @@ namespace RayMarching {
         QVector3D object_normal = object.normal(point);
         double total_density = 0;
         for (auto light_object : this->light_objects) {
-            QVector3D light_normal = (point - light_object->get_position()).normalized();
-            total_density += (1 - QVector3D::dotProduct(object_normal, light_normal)) / 2;
-            // (->, <-) = -1; (->, ->) = 1; I want it to be (->, <-) = 1; (->, ->) = 0;
+            total_density += light_object->evaluate_density(point, object_normal);
         }
 
         if (total_density > 1) {

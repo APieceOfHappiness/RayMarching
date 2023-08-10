@@ -17,8 +17,6 @@ namespace RayMarching {
         const double max_dist = 100;
         const double collision_accuracy = 0.01;
 
-        double light_strength = 4;
-
         QImage* inner_scene = nullptr;
         QVector3D position;
         QQuaternion rotation;

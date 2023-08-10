@@ -27,6 +27,7 @@ namespace RayMarching {
     class LightObject : public Object {
     public:
         LightObject();
+        virtual double evaluate_density(const QVector3D& point, const QVector3D& object_normal) const = 0;
     };
 }
 

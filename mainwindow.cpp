@@ -24,15 +24,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     QVector3D circle_center(0, 0, 5);
     RayMarching::Circle circle(QVector3D(1, 0.5, 3), 0.7);
+    RayMarching::Circle circle2(QVector3D(-2, -0.5, 3), 1);
 
-    RayMarching::PointLight light(QVector3D(1.2, 1.2, 1.2), 3);
+    RayMarching::PointLight light(QVector3D(1.2, 1.2, 1.2), 100);
+    RayMarching::PointLight light2(QVector3D(-1.2, -1, 1.2), 3);
 
     RayMarching::Camera camera;
     camera.set_inner_scene(image);
     camera.set_position(QVector3D(0, 0, 0));
 
     camera.add_object(circle);
+    camera.add_object(circle2);
     camera.add_object(light);
+    camera.add_object(light2);
 
     camera.render_the_scene();
 
