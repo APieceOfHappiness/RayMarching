@@ -10,6 +10,9 @@ namespace RayMarching {
         this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         this->setAlignment(Qt::AlignCenter);
 
+        this->direction = QVector3D(0, 0, 1);
+        this->direction = QVector3D(0, 0, 0);
+
         this->draft = new QImage(this->temp_width, this->temp_height, QImage::Format_RGB32);
         this->scene = new QGraphicsScene(this);
         this->scene->addPixmap(QPixmap::fromImage(*this->draft));
@@ -24,8 +27,8 @@ namespace RayMarching {
         this->position = position;
     }
 
-    void Camera::set_rotation(const QQuaternion &rotation) {
-        this->rotation = rotation;
+    void Camera::set_direction(const QVector3D &direction) {
+        this->direction = direction;
     }
 
     void Camera::add_object(Object &object) {
@@ -45,28 +48,33 @@ namespace RayMarching {
         return this->position;
     }
 
-    const QQuaternion& Camera::get_rotation() const {
-        return this->rotation;
+    const QVector3D& Camera::get_direction() const {
+        return this->direction;
     }
 
     void Camera::render_the_scene() {
         if (this->draft) {
-            double width = this->draft->width();
-            double height = this->draft->height();
+            double optim_width = this->draft->width() / this->pixel_size_cur;
+            double optim_height = this->draft->height() / this->pixel_size_cur;
             IntersectionInfo intersection{};
-            for (int i = 0; i < width; ++i) {
-                for (int j = 0; j < height; ++j) {
-                    intersection = this->ray(QVector2D(i, j));
+            for (int i = 0; i < optim_width; ++i) {
+                for (int j = 0; j < optim_height; ++j) {
+                    intersection = this->ray(QVector2D(this->pixel_size_cur * i, this->pixel_size_cur * j));
                     if (intersection.there_is_an_intersection) {
                         // TODO: smth
                     }
                     double density = intersection.light * 255;
-                    this->draft->setPixel(i, j, qRgb(density, density, density));
+                    for (size_t x = 0; x < this->pixel_size_cur; ++x) {
+                        for (size_t y = 0; y < this->pixel_size_cur; ++y) {
+                            this->draft->setPixel((this->pixel_size_cur * i + x) % this->draft->width(),
+                                                  (this->pixel_size_cur * j + y) % this->draft->height(),
+                                                  qRgb(density, density, density));
+                        }
+                    }
                 }
             }
 
             this->scene->clear();
-
             this->scene->addPixmap(QPixmap::fromImage(*this->draft));
             this->update();
         }
@@ -145,20 +153,106 @@ namespace RayMarching {
     }
 
     void Camera::keyPressEvent(QKeyEvent *event) {
-        if (event->key() == Qt::Key_W) {
-            this->position.setY(this->position.y() + 0.1);
-        } else if (event->key() == Qt::Key_D) {
-            this->position.setX(this->position.x() + 0.1);
-        } else if (event->key() == Qt::Key_S) {
-            this->position.setY(this->position.y() - 0.1);
-        } else if (event->key() == Qt::Key_A) {
-            this->position.setX(this->position.x() - 0.1);
-        } else if (event->key() == Qt::Key_Shift) {
-            this->position.setZ(this->position.z() - 0.1);
-        } else if (event->key() == Qt::Key_Space) {
-            this->position.setZ(this->position.z() + 0.1);
+        this->pixel_size_cur = this->pixel_size_move;
+
+        switch(event->key()) {
+            case Qt::Key_W:
+                if (!this->button_pressed.forward) {
+                    this->button_pressed.cnt++;
+                }
+                this->button_pressed.forward = true;
+                break;
+            case Qt::Key_D:
+                if (!this->button_pressed.right) {
+                    this->button_pressed.cnt++;
+                }
+                this->button_pressed.right = true;
+                break;
+            case Qt::Key_S:
+                if (!this->button_pressed.backward) {
+                    this->button_pressed.cnt++;
+                }
+                this->button_pressed.backward = true;
+                break;
+            case Qt::Key_A:
+                if (!this->button_pressed.left) {
+                    this->button_pressed.cnt++;
+                }
+                this->button_pressed.left = true;
+                break;
+            case Qt::Key_Space:
+                if (!this->button_pressed.up) {
+                    this->button_pressed.cnt++;
+                }
+                this->button_pressed.up = true;
+                break;
+            case Qt::Key_Shift:
+                if (!this->button_pressed.down) {
+                    this->button_pressed.cnt++;
+                }
+                this->button_pressed.down = true;
+                break;
+        }
+
+        if (this->button_pressed.forward) {
+            this->position.setZ(this->position.z() + 0.05);
+        }
+        if (this->button_pressed.right) {
+            this->position.setX(this->position.x() + 0.05);
+        }
+        if (this->button_pressed.backward) {
+            this->position.setZ(this->position.z() - 0.05);
+        }
+        if (this->button_pressed.left) {
+            this->position.setX(this->position.x() - 0.05);
+        }
+        if (this->button_pressed.up) {
+            this->position.setY(this->position.y() - 0.05);
+        }
+        if (this->button_pressed.down) {
+            this->position.setY(this->position.y() + 0.05);
         }
         this->render_the_scene();
     }
+
+    void Camera::keyReleaseEvent(QKeyEvent *event) {
+        if (event->isAutoRepeat())
+        {
+            return;
+        }
+
+        switch(event->key()) {
+            case Qt::Key_W:
+                this->button_pressed.forward = false;
+                this->button_pressed.cnt--;
+                break;
+            case Qt::Key_D:
+                this->button_pressed.right = false;
+                this->button_pressed.cnt--;
+                break;
+            case Qt::Key_S:
+                this->button_pressed.backward = false;
+                this->button_pressed.cnt--;
+                break;
+            case Qt::Key_A:
+                this->button_pressed.left = false;
+                this->button_pressed.cnt--;
+                break;
+            case Qt::Key_Space:
+                this->button_pressed.up = false;
+                this->button_pressed.cnt--;
+                break;
+            case Qt::Key_Shift:
+                this->button_pressed.down = false;
+                this->button_pressed.cnt--;
+                break;
+        }
+
+        if (!this->button_pressed.cnt) {
+            this->pixel_size_cur = this->pixel_size_stop;
+            this->render_the_scene();
+        }
+    }
 }
+
 
