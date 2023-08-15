@@ -10,18 +10,18 @@ CONFIG += c++17
 
 SOURCES += \
     camera.cpp \
-    circle.cpp \
     main.cpp \
     mainwindow.cpp \
     object.cpp \
-    pointlight.cpp
+    pointlight.cpp \
+    sphere.cpp
 
 HEADERS += \
     camera.h \
-    circle.h \
     mainwindow.h \
     object.h \
-    pointlight.h
+    pointlight.h \
+    sphere.h
 
 FORMS += \
     mainwindow.ui

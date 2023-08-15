@@ -1,11 +1,11 @@
 
-#ifndef CIRCLE_H
-#define CIRCLE_H
+#ifndef SPHERE_H
+#define SPHERE_H
 
 #include <object.h>
 
 namespace RayMarching {
-    class Circle : public StaticObject
+    class Sphere : public StaticObject
     {
         double radius;
     public:
@@ -13,9 +13,9 @@ namespace RayMarching {
         QVector3D normal(const QVector3D& point) const override;
         void info() const;
 
-        Circle(const QVector3D& center, double radius);
-        Circle();
+        Sphere(const QVector3D& center, double radius);
+        Sphere();
     };
 }
 
-#endif // CIRCLE_H
+#endif // SPHERE_H

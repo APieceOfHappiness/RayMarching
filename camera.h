@@ -14,6 +14,11 @@
 #include <QTimer>
 
 namespace RayMarching {
+
+    class Display {
+
+    };
+
     struct ButtonPressed {
         bool up = false;
         bool down = false;
@@ -27,10 +32,12 @@ namespace RayMarching {
     class Camera : public QGraphicsView
     {
         Q_OBJECT
+    private slots:
+        void main_loop_actions();
+
     private:
         size_t pixel_size_move = 10;
         size_t pixel_size_stop = 1;
-        size_t pixel_size_cur = 1;
 
         const int temp_width = 1000;
         const int temp_height = 550;
@@ -41,6 +48,8 @@ namespace RayMarching {
 
         QImage *draft = nullptr;
         QGraphicsScene *scene = nullptr;
+        QTimer *infinity_loop = nullptr;
+        bool high_quality_is_displayed = false;
 
         QVector3D direction;
         QVector3D position;
@@ -60,6 +69,7 @@ namespace RayMarching {
         void keyPressEvent(QKeyEvent *event) override;
         void keyReleaseEvent(QKeyEvent *event) override;
         ButtonPressed button_pressed;
+
     public:
         explicit Camera(QWidget *parent = 0);
         void set_draft(QImage &draft);
@@ -72,7 +82,7 @@ namespace RayMarching {
         const QVector3D &get_direction() const;
         void delete_object();
 
-        void render_the_scene();
+        void render_the_scene(int pixel_size);
 
         IntersectionInfo ray(const QVector2D &pixel); // 12 bytes are not a lot (pointer and double);
     };

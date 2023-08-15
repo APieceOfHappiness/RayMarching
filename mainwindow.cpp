@@ -3,7 +3,7 @@
 #include "ui_mainwindow.h"
 #include <camera.h>
 #include <pointlight.h>
-#include <circle.h>
+#include <Sphere.h>
 
 const size_t image_weight = 1000;
 const size_t image_height = 550;
@@ -19,22 +19,20 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->textEdit->resize(50, 50);
 
-    RayMarching::Circle *circle = new RayMarching::Circle(QVector3D(1, 0.5, 3), 0.7);
-    RayMarching::Circle *circle2 = new RayMarching::Circle(QVector3D(-2, -0.5, 3), 1);
-    RayMarching::Circle *circle3 = new RayMarching::Circle(QVector3D(-1, -2, 5), 1);
+    RayMarching::Sphere *sphere = new RayMarching::Sphere(QVector3D(1, 0.5, 3), 0.7);
+    RayMarching::Sphere *sphere2 = new RayMarching::Sphere(QVector3D(-2, -0.5, 3), 1);
+    RayMarching::Sphere *sphere3 = new RayMarching::Sphere(QVector3D(-1, -2, 5), 1);
 
     RayMarching::PointLight *light = new RayMarching::PointLight(QVector3D(1.2, 1.2, 1.2), 100);
     RayMarching::PointLight *light2 = new RayMarching::PointLight(QVector3D(-1.2, -1, 1.2), 3);
 
     ui->camera->set_position(QVector3D(0, 0, 0));
 
-    ui->camera->add_object(*circle);
-    ui->camera->add_object(*circle2);
-    ui->camera->add_object(*circle3);
+    ui->camera->add_object(*sphere);
+    ui->camera->add_object(*sphere2);
+    ui->camera->add_object(*sphere3);
     ui->camera->add_object(*light);
     ui->camera->add_object(*light2);
-
-    ui->camera->render_the_scene();
 }
 
 MainWindow::~MainWindow()

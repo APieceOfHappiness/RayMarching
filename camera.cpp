@@ -1,6 +1,6 @@
 
 #include "camera.h"
-#include <circle.h>
+#include <sphere.h>
 
 namespace RayMarching {
 
@@ -9,6 +9,10 @@ namespace RayMarching {
         this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         this->setAlignment(Qt::AlignCenter);
+
+        this->infinity_loop = new QTimer(this);
+        connect(this->infinity_loop, SIGNAL(timeout()), this, SLOT(main_loop_actions()));
+        this->infinity_loop->start(10);
 
         this->direction = QVector3D(0, 0, 1);
         this->direction = QVector3D(0, 0, 0);
@@ -52,22 +56,22 @@ namespace RayMarching {
         return this->direction;
     }
 
-    void Camera::render_the_scene() {
+    void Camera::render_the_scene(int pixel_size) {
         if (this->draft) {
-            double optim_width = this->draft->width() / this->pixel_size_cur;
-            double optim_height = this->draft->height() / this->pixel_size_cur;
+            double optim_width = this->draft->width() / pixel_size;
+            double optim_height = this->draft->height() / pixel_size;
             IntersectionInfo intersection{};
             for (int i = 0; i < optim_width; ++i) {
                 for (int j = 0; j < optim_height; ++j) {
-                    intersection = this->ray(QVector2D(this->pixel_size_cur * i, this->pixel_size_cur * j));
+                    intersection = this->ray(QVector2D(pixel_size * i, pixel_size * j));
                     if (intersection.there_is_an_intersection) {
                         // TODO: smth
                     }
                     double density = intersection.light * 255;
-                    for (size_t x = 0; x < this->pixel_size_cur; ++x) {
-                        for (size_t y = 0; y < this->pixel_size_cur; ++y) {
-                            this->draft->setPixel((this->pixel_size_cur * i + x) % this->draft->width(),
-                                                  (this->pixel_size_cur * j + y) % this->draft->height(),
+                    for (size_t x = 0; x < pixel_size; ++x) {
+                        for (size_t y = 0; y < pixel_size; ++y) {
+                            this->draft->setPixel((pixel_size * i + x) % this->draft->width(),
+                                                  (pixel_size * j + y) % this->draft->height(),
                                                   qRgb(density, density, density));
                         }
                     }
@@ -153,7 +157,10 @@ namespace RayMarching {
     }
 
     void Camera::keyPressEvent(QKeyEvent *event) {
-        this->pixel_size_cur = this->pixel_size_move;
+//        if (event->isAutoRepeat())
+//        {
+//            return;
+//        }
 
         switch(event->key()) {
             case Qt::Key_W:
@@ -194,25 +201,7 @@ namespace RayMarching {
                 break;
         }
 
-        if (this->button_pressed.forward) {
-            this->position.setZ(this->position.z() + 0.05);
-        }
-        if (this->button_pressed.right) {
-            this->position.setX(this->position.x() + 0.05);
-        }
-        if (this->button_pressed.backward) {
-            this->position.setZ(this->position.z() - 0.05);
-        }
-        if (this->button_pressed.left) {
-            this->position.setX(this->position.x() - 0.05);
-        }
-        if (this->button_pressed.up) {
-            this->position.setY(this->position.y() - 0.05);
-        }
-        if (this->button_pressed.down) {
-            this->position.setY(this->position.y() + 0.05);
-        }
-        this->render_the_scene();
+
     }
 
     void Camera::keyReleaseEvent(QKeyEvent *event) {
@@ -247,10 +236,34 @@ namespace RayMarching {
                 this->button_pressed.cnt--;
                 break;
         }
+    }
 
-        if (!this->button_pressed.cnt) {
-            this->pixel_size_cur = this->pixel_size_stop;
-            this->render_the_scene();
+    void Camera::main_loop_actions() {
+        if (this->button_pressed.forward) {
+            this->position.setZ(this->position.z() + 0.05);
+        }
+        if (this->button_pressed.right) {
+            this->position.setX(this->position.x() + 0.05);
+        }
+        if (this->button_pressed.backward) {
+            this->position.setZ(this->position.z() - 0.05);
+        }
+        if (this->button_pressed.left) {
+            this->position.setX(this->position.x() - 0.05);
+        }
+        if (this->button_pressed.up) {
+            this->position.setY(this->position.y() - 0.05);
+        }
+        if (this->button_pressed.down) {
+            this->position.setY(this->position.y() + 0.05);
+        }
+
+        if (this->button_pressed.cnt) {
+            this->render_the_scene(this->pixel_size_move);
+            this->high_quality_is_displayed = false;
+        } else if (!this->high_quality_is_displayed){
+            this->render_the_scene(this->pixel_size_stop);
+            this->high_quality_is_displayed = true;
         }
     }
 }
