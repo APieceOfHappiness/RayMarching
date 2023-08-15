@@ -4,8 +4,20 @@
 
 namespace RayMarching {
 
-    void Camera::set_inner_scene(QImage &inner_scene) {
-        this->inner_scene = &inner_scene;
+    Camera::Camera(QWidget *parent) : QGraphicsView(parent) {
+        this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        this->setAlignment(Qt::AlignCenter);
+
+        this->draft = new QImage(this->temp_width, this->temp_height, QImage::Format_RGB32);
+        this->scene = new QGraphicsScene(this);
+        this->scene->addPixmap(QPixmap::fromImage(*this->draft));
+        this->setScene(this->scene);
+    }
+
+    void Camera::set_draft(QImage &draft) {
+        this->draft = &draft;
     }
 
     void Camera::set_position(const QVector3D &position) {
@@ -25,8 +37,8 @@ namespace RayMarching {
         }
     }
 
-    const QImage& Camera::get_inner_scene() const {
-        return *this->inner_scene;
+    const QImage& Camera::get_draft() const {
+        return *this->draft;
     }
 
     const QVector3D& Camera::get_position() const {
@@ -38,9 +50,9 @@ namespace RayMarching {
     }
 
     void Camera::render_the_scene() {
-        if (this->inner_scene) {
-            double width = this->inner_scene->width();
-            double height = this->inner_scene->height();
+        if (this->draft) {
+            double width = this->draft->width();
+            double height = this->draft->height();
             IntersectionInfo intersection{};
             for (int i = 0; i < width; ++i) {
                 for (int j = 0; j < height; ++j) {
@@ -49,9 +61,14 @@ namespace RayMarching {
                         // TODO: smth
                     }
                     double density = intersection.light * 255;
-                    this->inner_scene->setPixel(i, j, qRgb(density, density, density));
+                    this->draft->setPixel(i, j, qRgb(density, density, density));
                 }
             }
+
+            this->scene->clear();
+
+            this->scene->addPixmap(QPixmap::fromImage(*this->draft));
+            this->update();
         }
     }
 
@@ -62,8 +79,8 @@ namespace RayMarching {
         }
 
         double whole_dist = 0;
-        double weight = this->get_inner_scene().width();
-        double height = this->get_inner_scene().height();
+        double weight = this->get_draft().width();
+        double height = this->get_draft().height();
         double screen_resolution_aspect = weight / height;
 
         double y = pixel.y() / height - 0.5;
@@ -125,6 +142,23 @@ namespace RayMarching {
         }
 
         return total_density;
+    }
+
+    void Camera::keyPressEvent(QKeyEvent *event) {
+        if (event->key() == Qt::Key_W) {
+            this->position.setY(this->position.y() + 0.1);
+        } else if (event->key() == Qt::Key_D) {
+            this->position.setX(this->position.x() + 0.1);
+        } else if (event->key() == Qt::Key_S) {
+            this->position.setY(this->position.y() - 0.1);
+        } else if (event->key() == Qt::Key_A) {
+            this->position.setX(this->position.x() - 0.1);
+        } else if (event->key() == Qt::Key_Shift) {
+            this->position.setZ(this->position.z() - 0.1);
+        } else if (event->key() == Qt::Key_Space) {
+            this->position.setZ(this->position.z() + 0.1);
+        }
+        this->render_the_scene();
     }
 }
 

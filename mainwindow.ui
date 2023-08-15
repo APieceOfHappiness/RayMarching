@@ -60,7 +60,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <string>Some stuff</string>
     </property>
    </widget>
-   <widget class="QGraphicsView" name="graphicsView">
+   <widget class="RayMarching::Camera" name="camera">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -114,6 +114,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>RayMarching::Camera</class>
+   <extends>QGraphicsView</extends>
+   <header>camera.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

@@ -3,21 +3,31 @@
 #define CAMERA_H
 #include <QVector3D>
 #include <QVector2D>
+#include <QGraphicsView>
+#include <QKeyEvent>
 #include <QImage>
 #include <QDebug>
 #include <QQuaternion>
 #include <object.h>
 #include <vector>
 
+#include <QTimer>
+
 namespace RayMarching {
-    class Camera
+    class Camera : public QGraphicsView
     {
+        Q_OBJECT
     private:
-        const int max_steps = 300;
-        const double max_dist = 100;
+        int temp_width = 1000;
+        int temp_height = 550;
+
+        const int max_steps = 10;
+        const double max_dist = 10;
         const double collision_accuracy = 0.01;
 
-        QImage* inner_scene = nullptr;
+        QImage *draft = nullptr;
+        QGraphicsScene *scene = nullptr;
+
         QVector3D position;
         QQuaternion rotation;
         std::vector<StaticObject*> static_objects;
@@ -32,14 +42,16 @@ namespace RayMarching {
 
         IntersectionInfo find_closest_static_object(const QVector3D& point);
         double get_light(const QVector3D& point, const StaticObject& object) const;
+
+        void keyPressEvent(QKeyEvent *event);
     public:
-        Camera() = default;
-        void set_inner_scene(QImage &inner_scene);
+        explicit Camera(QWidget *parent = 0);
+        void set_draft(QImage &draft);
         void set_position(const QVector3D &position);
         void set_rotation(const QQuaternion &rotation);
         void add_object(Object &object);
 
-        const QImage &get_inner_scene() const;
+        const QImage &get_draft() const;
         const QVector3D &get_position() const;
         const QQuaternion &get_rotation() const;
         void delete_object();
